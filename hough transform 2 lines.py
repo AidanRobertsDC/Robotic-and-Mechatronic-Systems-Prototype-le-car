@@ -3,6 +3,10 @@ import numpy
 import math 
 
 cam = cv2.VideoCapture(0)
+
+vertical_lines = []
+similer_angle =[]
+
 while True:
     check, frame = cam.read()
     image = cv2.resize(frame,(320,240))
@@ -23,6 +27,15 @@ while True:
             rho = lines[i][0][0]
             theta = lines[i][0][1]
             if ((theta > 3*numpy.pi/4) or (theta <numpy.pi/4)):
+                vertical_lines.append(lines[i])
+        similer_angle.append(verical_lines[0])
+        for line in vertical_lines[1:]:
+            if((vertical_lines[0][0][1]/line[0][1]<2) and (vertical_lines[0][0][1]/line[0][1]>0))
+                similer_angle.append(line)
+        for line in similer_angle[1:]:
+            if((similer_angle[0][0][0]/line[0][0]>2) and (similer_angle[0][0][0]/line[0][0]<0))
+                rho = line[0][0]
+                theta = line[0][1]  
                 a = math.cos(theta)
                 b = math.sin(theta)
                 x0 = a * rho 

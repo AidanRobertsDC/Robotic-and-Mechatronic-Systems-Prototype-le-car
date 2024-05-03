@@ -29,9 +29,11 @@ while True:
             if ((theta > 3*numpy.pi/4) or (theta <numpy.pi/4)):
                 vertical_lines.append(lines[i])
         similer_angle.append(verical_lines[0])
+    if line is not None:
         for line in vertical_lines[1:]:
             if((vertical_lines[0][0][1]/line[0][1]<2) and (vertical_lines[0][0][1]/line[0][1]>0)):
                 similer_angle.append(line)
+    if line is not None:
         for line in similer_angle[1:]:
             if((similer_angle[0][0][0]/line[0][0]>2) and (similer_angle[0][0][0]/line[0][0]<0)):
                 rho = line[0][0]

@@ -3,9 +3,15 @@ import numpy
 import math 
 from gpiozero import Robot
 
+def check_exit():
+    key = cv2.waitKey(1)
+    if key == 27:
+        return True
+    return False
+
 cam = cv2.VideoCapture(0)
 robot = Robot((17,27), (22,23))
-key = cv2.waitKey(1)
+
 
 while True:
     check, frame = cam.read()
@@ -66,16 +72,22 @@ while True:
             if centerline - center > 0:
                 while centerline - center > 0:
                     robot.right()
+                    if check_exit():
+                        break
                 robot.stop()
             elif centerline - center < 0:
                     while centerline - center < 0:
                         robot.left()
+                        if check_exit():
+                        break
             robot.stop()
             while centerline - center == 0:
                     robot.forward()
+                    if check_exit():
+                        break
             robot.stop()
         
-    if key == 27:
+    if check_exit():
         break
 cam.release()
 cv2.destroyAllWindows()

@@ -2,16 +2,16 @@ import cv2
 import numpy
 import math 
 from gpiozero import Robot
+import time
+
+cam = cv2.VideoCapture(0)
+robot = Robot((17,27), (22,23))
 
 def check_exit():
     key = cv2.waitKey(1)
     if key == 27:
         return True
     return False
-
-cam = cv2.VideoCapture(0)
-robot = Robot((17,27), (22,23))
-
 
 while True:
     check, frame = cam.read()
@@ -24,7 +24,7 @@ while True:
     cannyImage = cv2.Canny(blur_image, 80, 200)
     cv2.imshow('cannyImage', cannyImage)
 
-    lines = cv2.HoughLines(cannyImage, 1, numpy.pi / 220, 80, None, 0, 0)
+    lines = cv2.HoughLines(cannyImage, 1, numpy.pi / 220, 60, None, 0, 0)
     
     def seperation(line):
         rho = line[0][0]
@@ -48,7 +48,7 @@ while True:
 
         for line in vertical_lines[1:]:
             if len(line) > 0:
-                if((vertical_lines[0][0][1]/line[0][1]<1.5) and (vertical_lines[0][0][1]/line[0][1]>0.5)):#Getting the theta of first line in vertical_lines and dividng by the theta of other lines in vertical_lines to see if they have similer enough theta.
+                if((vertical_lines[0][0][1]/line[0][1]>0) and (vertical_lines[0][0][1]/line[0][1]<2)):#Getting the theta of first line in vertical_lines and dividng by the theta of other lines in vertical_lines to see if they have similer enough theta.
                     similer_angle.append(line)
         if len(similer_angle) > 0:
             similer_angle.sort(key=seperation) 
@@ -65,29 +65,36 @@ while True:
                 pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
                 pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a)))
                 cv2.line(image, pt1, pt2, (0,0,255), 3, cv2.LINE_AA) 
-                cv2.circle(image,(447,63), 63, (0,0,255), -1) 
                 cv2.imshow("Detected Lines (in red) - Standard Hough Line Transform", image) 
             centerline = (first[0][0] + last[0][0])/2
             center = image_width/2
-            if centerline - center > 0:
-                while centerline - center > 0:
-                    robot.right()
-                    if check_exit():
-                        break
+            if ((centerline - center > 20) and (centerline <220)):
+                robot.right()
+                print("right")
+                time.sleep(0.02)
                 robot.stop()
-            elif centerline - center < 0:
-                    while centerline - center < 0:
-                        robot.left()
-                        if check_exit():
-                        break
-            robot.stop()
-            while centerline - center == 0:
-                    robot.forward()
-                    if check_exit():
-                        break
-            robot.stop()
-        
-    if check_exit():
+            elif ((centerline - center > 20) and (centerline > 220)):
+                robot.left()
+                print("left")
+                time.sleep(0.02)
+                robot.stop()
+            if ((centerline - center < -20) and (centerline > 20)):
+                robot.left()
+                print("left")
+                time.sleep(0.02)
+                robot.stop()
+            elif ((centerline - center < -20) and (centerline < 20)):
+                robot.right()
+                print("right")
+                time.sleep(0.02)
+                robot.stop()
+            if ((centerline - center >= - 20) and (centerline - center <= 20)):
+                robot.backward()
+                print("forward")
+                time.sleep(0.1)
+                robot.stop()
+                
+if check_exit():
         break
 cam.release()
 cv2.destroyAllWindows()
